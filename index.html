@@ -15,6 +15,7 @@
 			}
 			text {
 				fill: white;
+				font-family: monospace;
 			}
 			textarea {
 				margin-bottom: 3em;
@@ -35,49 +36,44 @@
 
 		function parsePseudocode() {
 			var pseudocode = document.getElementById("pseudocode-editor").value.split('\n');
-			graph = {
+			pseudograph = {
 				nodes: ["START"],
 				edges: []
 			};
 
 			pseudocode.forEach(function (element, index) {
-				graph.nodes.push(element);
+				pseudograph.nodes.push(element.trim());
 			});
-			graph.nodes.push("END");
+			pseudograph.nodes.push("END");
 
 			pseudocode.forEach(function (element, index) {
-				graph.edges.push([index, index+1]);
+				pseudograph.edges.push([index, index+1]);
 			});
-			graph.edges.push([pseudocode.length, pseudocode.length+1]);
+			pseudograph.edges.push([pseudocode.length, pseudocode.length+1]);
 
-			return graph;
+			return pseudograph;
 
 		}
 
-		function drawChart(pseudocode) {
+		function drawChart(pseudograph) {
 
-			console.log(pseudocode);
 			var g = new dagre.graphlib.Graph();
 			g.setGraph({});
-			g.setDefaultEdgeLabel(function() { return {}; })
+			g.setDefaultEdgeLabel(function() { return {}; });
 
-			g.setNode("0", { label: "START", width: 144, height: 50 });
-			g.setNode("1", { label: "Start walking to the store", width: 144, height: 50 });
-			g.setNode("2", { label: "Walk a block to the store", width: 144, height: 50 });
-			g.setNode("3", { shape: "diamond", label: "Are you at the store yet?", width: 144, height: 50 });
-			g.setNode("4", { label: "Hooray!", width: 144, height: 50 });
-			g.setNode("5", { label: "Keep walking", width: 144, height: 50 });
-			g.setNode("6", { label: "While you are not at the store", width: 144, height: 50 });
-			g.setNode("7", { label: "END", width: 144, height: 50 });
+			pseudograph.nodes.forEach(function(element, index){
+				var stringEms = parseInt(getComputedStyle(document.body).fontSize, 10);
+				var stringWidth = element.length * stringEms;
+				g.setNode(index.toString(), {
+					label: element,
+					width: stringWidth,
+					height: stringEms
+				})
+			});
 
-			g.setEdge("0", "1");
-			g.setEdge("1", "2")
-			g.setEdge("2", "3");
-			g.setEdge("3", "4");
-			g.setEdge("3", "5");
-			g.setEdge("4", "7");
-			g.setEdge("5", "6");
-			g.setEdge("6", "2");
+			pseudograph.edges.forEach(function(element, index){
+				g.setEdge(element[0].toString(), element[1].toString());
+			});
 
 			dagre.layout(g);
 			var svg = d3.select("#flowchart-display"),
