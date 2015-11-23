@@ -36,23 +36,39 @@
 
 		function parsePseudocode() {
 			var pseudocode = document.getElementById("pseudocode-editor").value.split('\n');
+			// pseudograph = 'JSON of graph metadata'
 			pseudograph = {
-				nodes: ["START"],
+				nodes: [{
+					label: "START",
+					shape: "ellipse"
+				}],
 				edges: []
 			};
 
+			// populate the nodes
 			pseudocode.forEach(function (element, index) {
-				pseudograph.nodes.push(element.trim());
+				pseudograph.nodes.push({
+					label: element.trim(),
+					shape: parseConditionals(element) != -1 ? "diamond" : "rect"
+				});
 			});
-			pseudograph.nodes.push("END");
+			pseudograph.nodes.push({label:"END",shape:"ellipse"});
 
+			// populate the edges
 			pseudocode.forEach(function (element, index) {
+
 				pseudograph.edges.push([index, index+1]);
 			});
 			pseudograph.edges.push([pseudocode.length, pseudocode.length+1]);
 
 			return pseudograph;
 
+		}
+
+		function parseConditionals(line) {
+			var re = /\?\?/;
+			var idx = line.search(re);
+			return idx;
 		}
 
 		function drawChart(pseudograph) {
@@ -63,11 +79,12 @@
 
 			pseudograph.nodes.forEach(function(element, index){
 				var stringEms = parseInt(getComputedStyle(document.body).fontSize, 10);
-				var stringWidth = element.length * stringEms;
+				var stringWidth = element.label.length * stringEms - 20;
 				g.setNode(index.toString(), {
-					label: element,
+					label: element.label,
 					width: stringWidth,
-					height: stringEms
+					height: stringEms,
+					shape: element.shape
 				})
 			});
 
