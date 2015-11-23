@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="d3/d3.min.js"></script>
+		<script src="dagre/dist/dagre.min.js"></script>
+		<script src="dagre-d3/dist/dagre-d3.min.js"></script>
+		<style>
+			.node {
+				fill: green;
+			}
+			.path {
+				fill: none;
+				stroke: black;
+				stroke-width: 2px;
+			}
+			text {
+				fill: white;
+			}
+			textarea {
+				margin-bottom: 3em;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Pseudoflow</h1>
+		<textarea id="pseudocode-editor" cols="80" rows="12">Hello, pseudocode!&#13;&#10;We're glad you came!</textarea>
+		<button id="draw-chart" type='button' onclick="main()">Draw Chart</button>
+		<svg id="flowchart-display" width="1000" height="1200">
+			<g/>
+		</svg>
+		<script>
+		function main() {
+			drawChart(parsePseudocode())
+		}
+
+		function parsePseudocode() {
+			var pseudocode = document.getElementById("pseudocode-editor").value.split('\n');
+			graph = {
+				nodes: ["START"],
+				edges: []
+			};
+
+			pseudocode.forEach(function (element, index) {
+				graph.nodes.push(element);
+			});
+			graph.nodes.push("END");
+
+			pseudocode.forEach(function (element, index) {
+				graph.edges.push([index, index+1]);
+			});
+			graph.edges.push([pseudocode.length, pseudocode.length+1]);
+
+			return graph;
+
+		}
+
+		function drawChart(pseudocode) {
+
+			console.log(pseudocode);
+			var g = new dagre.graphlib.Graph();
+			g.setGraph({});
+			g.setDefaultEdgeLabel(function() { return {}; })
+
+			g.setNode("0", { label: "START", width: 144, height: 50 });
+			g.setNode("1", { label: "Start walking to the store", width: 144, height: 50 });
+			g.setNode("2", { label: "Walk a block to the store", width: 144, height: 50 });
+			g.setNode("3", { shape: "diamond", label: "Are you at the store yet?", width: 144, height: 50 });
+			g.setNode("4", { label: "Hooray!", width: 144, height: 50 });
+			g.setNode("5", { label: "Keep walking", width: 144, height: 50 });
+			g.setNode("6", { label: "While you are not at the store", width: 144, height: 50 });
+			g.setNode("7", { label: "END", width: 144, height: 50 });
+
+			g.setEdge("0", "1");
+			g.setEdge("1", "2")
+			g.setEdge("2", "3");
+			g.setEdge("3", "4");
+			g.setEdge("3", "5");
+			g.setEdge("4", "7");
+			g.setEdge("5", "6");
+			g.setEdge("6", "2");
+
+			dagre.layout(g);
+			var svg = d3.select("#flowchart-display"),
+			    inner = svg.select("g");
+
+			var render = new dagreD3.render();
+			render(inner, g);
+		}
+		
+		main()
+		</script>
+	</body>
+</html>
