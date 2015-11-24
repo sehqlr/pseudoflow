@@ -1,39 +1,53 @@
-function main() {
-	drawChart(parsePseudocode())
-}
+var hasIF = function(line) {
+	return line.search(/\s*\?\?/) != -1 ? true : false;
+};
 
-function parsePseudocode() {
-	var pCode = document.getElementById("pseudocode-editor").value.split('\n');
-	var hasIF = function(line) {
-		return line.search(/\?\?/);
-	};
+var hasELSE = function(line) {
+	return line.search(/\s*->/) != -1 ? true : false;
+};
 
+var pCode = function(id) {
+	return ["START"].concat(document.getElementById(id).value.split('\n'), "END");
+
+};
+
+function parsePseudocode(id) {
+
+	code = pCode(id);
 	// pGraph = 'JSON of graph metadata'
 	pGraph = {
-		nodes: [{
-			label: "START",
-			shape: "ellipse"
-		}],
+		nodes: [],
 		edges: []
 	};
 
 	// populate the nodes
-	for (var i = 0, n = pCode.length; i<n; i++) {
-		var element = pCode[i];
-		isIF = hasIF(element) != -1 ? true : false;
-		// set node
-		pGraph.nodes.push({
-			label: element.trim(),
-			shape: isIF ? "diamond" : "rect"
-		});
+	for (var i = 0, n = code.length; i<n; i++) {
+		var element = code[i].trim();
+		console.log(element)
 
-		// set edge
-		pGraph.edges.push([i, i+1]);
+		var label = element.replace(/\?\?|->|=>|<=/, "").trim();
+		var shape;
+
+		if (hasIF(element)) {
+			shape = "diamond";
+		} else if (element === "START" || element === "END") {
+			shape = "ellipse";
+		} else {
+			shape = "rect";
+		}
+
+		pGraph.nodes.push({label:label, shape:shape});
+
+		if (hasIF(element)) {
+			for (var j = i, m = n; j<m; j++) {
+				console.log("isIF " + code[j]);
+				console.log("i "+i+" n "+n+" j "+j+" m");
+			}
+		} else if (element !== "END"){
+			pGraph.edges.push([i, i+1]);
+		}
+
 	}
-
-	// set END node
-	pGraph.nodes.push({label:"END",shape:"ellipse"});
-	pGraph.edges.push([pCode.length, pCode.length+1]);
 
 	return pGraph;
 }
@@ -51,7 +65,7 @@ function drawChart(pGraph) {
 			width: stringWidth,
 			height: stringEms,
 			shape: element.shape
-		})
+		});
 	});
 
 	pGraph.edges.forEach(function(element, index){
@@ -64,6 +78,10 @@ function drawChart(pGraph) {
 
 	var render = new dagreD3.render();
 	render(inner, g);
+}
+
+function main() {
+	drawChart(parsePseudocode("pseudocode-editor"))
 }
 
 main()
