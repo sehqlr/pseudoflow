@@ -1,0 +1,15 @@
+.node {
+	fill: green;
+}
+.path {
+	fill: none;
+	stroke: black;
+	stroke-width: 2px;
+}
+text {
+	fill: white;
+	font-family: monospace;
+}
+textarea {
+	margin-bottom: 3em;
+}

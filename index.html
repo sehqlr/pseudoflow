@@ -4,103 +4,13 @@
 		<script src="d3.min.js"></script>
 		<script src="dagre.min.js"></script>
 		<script src="dagre-d3.min.js"></script>
-		<style>
-			.node {
-				fill: green;
-			}
-			.path {
-				fill: none;
-				stroke: black;
-				stroke-width: 2px;
-			}
-			text {
-				fill: white;
-				font-family: monospace;
-			}
-			textarea {
-				margin-bottom: 3em;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
 		<h1>Pseudoflow</h1>
 		<textarea id="pseudocode-editor" cols="80" rows="12">Hello, pseudocode!&#13;&#10;We're glad you came!</textarea>
 		<button id="draw-chart" type='button' onclick="main()">Draw Chart</button>
-		<svg id="flowchart-display" width="1000" height="1200">
-			<g/>
-		</svg>
-		<script>
-		function main() {
-			drawChart(parsePseudocode())
-		}
-
-		function parsePseudocode() {
-			var pseudocode = document.getElementById("pseudocode-editor").value.split('\n');
-			// pseudograph = 'JSON of graph metadata'
-			pseudograph = {
-				nodes: [{
-					label: "START",
-					shape: "ellipse"
-				}],
-				edges: []
-			};
-
-			// populate the nodes
-			pseudocode.forEach(function (element, index) {
-				pseudograph.nodes.push({
-					label: element.trim(),
-					shape: parseConditionals(element) != -1 ? "diamond" : "rect"
-				});
-			});
-			pseudograph.nodes.push({label:"END",shape:"ellipse"});
-
-			// populate the edges
-			pseudocode.forEach(function (element, index) {
-
-				pseudograph.edges.push([index, index+1]);
-			});
-			pseudograph.edges.push([pseudocode.length, pseudocode.length+1]);
-
-			return pseudograph;
-
-		}
-
-		function parseConditionals(line) {
-			var re = /\?\?/;
-			var idx = line.search(re);
-			return idx;
-		}
-
-		function drawChart(pseudograph) {
-
-			var g = new dagre.graphlib.Graph();
-			g.setGraph({});
-			g.setDefaultEdgeLabel(function() { return {}; });
-
-			pseudograph.nodes.forEach(function(element, index){
-				var stringEms = parseInt(getComputedStyle(document.body).fontSize, 10);
-				var stringWidth = element.label.length * stringEms - 20;
-				g.setNode(index.toString(), {
-					label: element.label,
-					width: stringWidth,
-					height: stringEms,
-					shape: element.shape
-				})
-			});
-
-			pseudograph.edges.forEach(function(element, index){
-				g.setEdge(element[0].toString(), element[1].toString());
-			});
-
-			dagre.layout(g);
-			var svg = d3.select("#flowchart-display"),
-			    inner = svg.select("g");
-
-			var render = new dagreD3.render();
-			render(inner, g);
-		}
-		
-		main()
-		</script>
+		<svg id="flowchart-display" width="1000" height="1200"><g/></svg>
+		<script src="main.js"></script>
 	</body>
 </html>
