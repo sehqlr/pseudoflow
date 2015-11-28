@@ -7,7 +7,9 @@ var hasELSE = function(line) {
 };
 
 var pCode = function(id) {
-	return ["START"].concat(document.getElementById(id).value.split('\n'), "END");
+	return ["START"]
+		.concat(document.getElementById(id).value.split('\n'), "END")
+		.filter(function(element, index, array){ return element !== "" });
 
 };
 
@@ -80,8 +82,8 @@ function drawChart(pGraph) {
 	render(inner, g);
 }
 
-function main() {
-	drawChart(parsePseudocode("pseudocode-editor"))
-}
+d3.select('#pseudocode-editor').on("input",function() {
+	drawChart(parsePseudocode("pseudocode-editor"));
+}); 
 
-main()
+drawChart(parsePseudocode("pseudocode-editor"));
